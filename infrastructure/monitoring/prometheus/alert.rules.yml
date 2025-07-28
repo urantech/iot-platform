@@ -1,0 +1,22 @@
+groups:
+  - name: postgres-alerts
+    rules:
+      # Доступность базы данных
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL недоступен на {{ $labels.instance }}"
+          description: "PostgreSQL сервер не отвечает более 1 минуты"
+
+      # Высокое количество соединений
+      - alert: PostgreSQLHighConnections
+        expr: (pg_stat_database_numbackends / pg_settings_max_connections * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Много соединений к PostgreSQL на {{ $labels.instance }}"
+          description: "Использовано {{ $value }}% от максимального количества соединений"
